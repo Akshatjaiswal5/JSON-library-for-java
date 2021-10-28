@@ -128,17 +128,17 @@ public class JSON
  {
   return stringify();
  }
- public Object get(String k) throws InvalidPropertyException
+ public Object get(String k) throws JSONException
  {
   if(!hasProperty(k))
-  throw new InvalidPropertyException("Property doesn't exist");
+  throw new JSONException("Property doesn't exist");
 
   return data.get(k);
  }
- public void delete(String k) throws InvalidPropertyException
+ public void delete(String k) throws JSONException
  {
   if(!hasProperty(k))
-  throw new InvalidPropertyException("Property doesn't exist");
+  throw new JSONException("Property doesn't exist");
 
   data.remove(k);
  }
@@ -146,20 +146,20 @@ public class JSON
  {
   return data.containsKey(s);
  }
- public JSON set(String k, Object v) throws InvalidPropertyException
+ public JSON set(String k, Object v) throws JSONException
  {
   if(!hasProperty(k))
-  throw new InvalidPropertyException("Property doesn't exist");
+  throw new JSONException("Property doesn't exist");
 
   data.remove(k);
   data.put(k,v);
 
   return this;
  }
- public JSON add(String k, Object v) throws InvalidPropertyException
+ public JSON add(String k, Object v) throws JSONException
  {
   if(hasProperty(k))
-  throw new InvalidPropertyException("Property already exists");
+  throw new JSONException("Property already exists");
 
   data.put(k,v);
 
@@ -174,7 +174,7 @@ public class JSON
   data=new HashMap<>();
   parse(s);
  }
- public JSON(File f) throws JSONParsingException
+ public JSON(File f) throws JSONException
  {
   long lengthOfFile= f.length();
   byte bytes[]= new byte[(int)lengthOfFile];
@@ -186,7 +186,7 @@ public class JSON
   }
   catch(Exception e)
   {
-   throw new JSONParsingException("File not found");
+   throw new JSONException("File not found");
   }
 
   String s= new String(bytes);
@@ -194,16 +194,9 @@ public class JSON
   parse(s);
  }
 }
-class InvalidPropertyException extends RuntimeException
+class JSONException extends RuntimeException
 {
- public InvalidPropertyException(String message)
- {
-  super(message);
- }
-}
-class JSONParsingException extends RuntimeException
-{
- public JSONParsingException(String message)
+ public JSONException(String message)
  {
   super(message);
  }
