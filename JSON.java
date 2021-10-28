@@ -1,7 +1,7 @@
 import java.io.*;
 import java.util.*;
 
-public class JSON
+public class JSON 
 {
  Map<String,Object> data;
 
@@ -101,7 +101,7 @@ public class JSON
  public String stringify()
  {
   StringBuffer s=new StringBuffer();
-  s.append("{\n ");
+  s.append("{ \n ");
 
   data.forEach((k,v)->{
    s.append("\""+k+"\":");
@@ -124,6 +124,10 @@ public class JSON
   s.append(" }");
   return s.toString();
  }
+ public String toString()
+ {
+  return stringify();
+ }
  public Object get(String k) throws InvalidPropertyException
  {
   if(!hasProperty(k))
@@ -142,20 +146,24 @@ public class JSON
  {
   return data.containsKey(s);
  }
- public void set(String k, Object v) throws InvalidPropertyException
+ public JSON set(String k, Object v) throws InvalidPropertyException
  {
   if(!hasProperty(k))
   throw new InvalidPropertyException("Property doesn't exist");
 
   data.remove(k);
   data.put(k,v);
+
+  return this;
  }
- public void add(String k, Object v) throws InvalidPropertyException
+ public JSON add(String k, Object v) throws InvalidPropertyException
  {
   if(hasProperty(k))
   throw new InvalidPropertyException("Property already exists");
 
   data.put(k,v);
+
+  return this;
  }
  public JSON()
  {
