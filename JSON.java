@@ -4,29 +4,126 @@ import java.util.*;
 public class JSON
 {
  Map<String,Object> data;
+
+ public int parse(String s)
+ {
+  data=new HashMap<>();
+  
+  int i=0;
+  while(s.charAt(i)==' '||s.charAt(i)=='\n'||s.charAt(i)=='\r')
+  i++;
+
+  i++;
+
+  String key,value;
+
+  while(true)
+  {
+   while(s.charAt(i)!='"'&&s.charAt(i)!='}')
+   i++;
+
+   if(s.charAt(i)=='}')
+   break;
+
+   i++;
+
+   key="";
+   while(s.charAt(i)!='"')
+   {
+    key+=s.charAt(i);
+    i++;
+   }
+   i++;
+   
+   while(s.charAt(i)==' '||s.charAt(i)=='\n'||s.charAt(i)=='\r')
+   i++;
+
+   i++;
+
+   while(s.charAt(i)==' '||s.charAt(i)=='\n'||s.charAt(i)=='\r')
+   i++;
+
+   if(s.charAt(i)=='"')
+   {
+    i++;
+    value="";
+    while(s.charAt(i)!='"')
+    {
+     value+=s.charAt(i);
+     i++;
+    }
+    i++;
+
+    add(key,value);
+    continue;
+   }
+   else if(s.charAt(i)=='{')
+   {
+    JSON v=new JSON();
+    i+=v.parse(s.substring(i));
+    add(key, v);
+    i++;
+    continue;
+   }
+   else if(s.charAt(i)=='[')
+   {}
+   else
+   {
+    value="";
+    while(s.charAt(i)!=' '&&s.charAt(i)!='\n'&&s.charAt(i)!='\r'&&s.charAt(i)!=',')
+    {
+     value+=s.charAt(i);
+     i++;
+    }
+    i++;
+
+    if(value.equals("true")||value.equals("false"))
+    {
+     add(key,Boolean.parseBoolean(value));
+     continue;
+    }
+    else if(value.equals("null"))
+    {
+     add(key,null);
+     continue;
+    }
+    else if(value.contains("."))
+    {
+     add(key,Double.parseDouble(value));
+     continue;
+    }
+    add(key,Long.parseLong(value));
+    continue; 
+   }
+  }
+  return i;
+ }
  public String stringify()
  {
   StringBuffer s=new StringBuffer();
-  s.append("{ ");
+  s.append("{\n ");
 
   data.forEach((k,v)->{
    s.append("\""+k+"\":");
 
-   if(v instanceof String)
+   if(v instanceof JSON)
    {
-    s.append("\""+(String)v+"\",");
+    s.append(((JSON)v).stringify()+",\n ");
+   }
+   else if(v instanceof String)
+   {
+    s.append("\""+(String)v+"\",\n ");
    }
    else
    {
-    s.append(String.valueOf(v)+",");
+    s.append(String.valueOf(v)+",\n ");
    }
 
   });
-  s.deleteCharAt(s.length()-1);
+  s.deleteCharAt(s.length()-3);
   s.append(" }");
   return s.toString();
  }
-
  public Object get(String k) throws InvalidPropertyException
  {
   if(!hasProperty(k))
@@ -45,7 +142,7 @@ public class JSON
  {
   return data.containsKey(s);
  }
- public void set(String k, String v) throws InvalidPropertyException
+ public void set(String k, Object v) throws InvalidPropertyException
  {
   if(!hasProperty(k))
   throw new InvalidPropertyException("Property doesn't exist");
@@ -53,121 +150,21 @@ public class JSON
   data.remove(k);
   data.put(k,v);
  }
- public void set(String k, Double v) throws InvalidPropertyException
- {
-  if(!hasProperty(k))
-  throw new InvalidPropertyException("Property doesn't exist");
-
-  data.remove(k);
-  data.put(k,v);
- }
- public void set(String k, Integer v) throws InvalidPropertyException
- {
-  if(!hasProperty(k))
-  throw new InvalidPropertyException("Property doesn't exist");
-
-  data.remove(k);
-  data.put(k,v);
- }
- public void add(String k, String v) throws InvalidPropertyException
+ public void add(String k, Object v) throws InvalidPropertyException
  {
   if(hasProperty(k))
   throw new InvalidPropertyException("Property already exists");
 
   data.put(k,v);
  }
- public void add(String k, Double v) throws InvalidPropertyException
- {
-  if(hasProperty(k))
-  throw new InvalidPropertyException("Property already exists");
-
-  data.put(k,v);
- }
- public void add(String k, Integer v) throws InvalidPropertyException
- {
-  if(hasProperty(k))
-  throw new InvalidPropertyException("Property already exists");
-
-  data.put(k,v);
- }
-
  public JSON()
  {
   data=new HashMap<>();
  }
- public JSON(String s) throws JSONParsingException
+ public JSON(String s)
  {
   data=new HashMap<>();
-  JSONParsingException jpe= new JSONParsingException("Parsing error");
-  int i=0;
-  while(s.charAt(i)==' ')
-  i++;
-
-  if(s.charAt(i)!='{')
-  throw jpe;
-  else
-  i++;
-
-  String key,value;
-
-  while(i<s.length())
-  {
-   while(s.charAt(i)!='"'&&s.charAt(i)!='}')
-   i++;
-
-   if(s.charAt(i)=='}')
-   break;
-
-   i++;
-
-   key="";
-   while(s.charAt(i)!='"')
-   {
-    key+=s.charAt(i);
-    i++;
-   }
-   i++;
-   
-   while(s.charAt(i)==' '||s.charAt(i)=='\n')
-   i++;
-
-   if(s.charAt(i)!=':')
-   throw jpe;
-   else
-   i++;
-
-   while(s.charAt(i)==' '||s.charAt(i)=='\n')
-   i++;
-
-   if(s.charAt(i)=='"')
-   {
-    i++;
-    value="";
-    while(s.charAt(i)!='"')
-    {
-     value+=s.charAt(i);
-     i++;
-    }
-    i++;
-
-    add(key,value);
-    continue;
-   }
-   else
-   {
-    value="";
-    while(s.charAt(i)!=' '&&s.charAt(i)!='\n'&&s.charAt(i)!=',')
-    {
-     value+=s.charAt(i);
-     i++;
-    }
-    i++;
-
-    add(key,Double.parseDouble(value));
-    continue;
-   }
-  
-  }
+  parse(s);
  }
  public JSON(File f) throws JSONParsingException
  {
@@ -186,7 +183,7 @@ public class JSON
 
   String s= new String(bytes);
 
-  this.data=new JSON(s).data;
+  parse(s);
  }
 }
 class InvalidPropertyException extends RuntimeException
