@@ -1,6 +1,5 @@
-/a.json
-/InvalidPropertyException.class
-/JSON.class
-/JSONParsingException.class
-/Test.class
-/Test.java
+# Ignore Gradle project-specific cache directory
+.gradle
+
+# Ignore Gradle build output directory
+build

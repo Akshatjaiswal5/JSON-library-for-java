@@ -1,3 +1,6 @@
+package com.thinking.machines.json;
+
+import com.thinking.machines.exceptions.*;
 import java.io.*;
 import java.util.*;
 
@@ -192,12 +195,5 @@ public class JSON
   String s= new String(bytes);
 
   parse(s);
- }
-}
-class JSONException extends RuntimeException
-{
- public JSONException(String message)
- {
-  super(message);
  }
 }
